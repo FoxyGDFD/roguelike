@@ -4,16 +4,16 @@
  * @returns {string} joined path
  */
 function joinPath() {
-  var parts = []
+  var parts = [];
   for (var i = 0; i < arguments.length; i++) {
     if (arguments[i]) {
-      var part = arguments[i].replace(/^\/+|\/+$/g, '')
+      var part = arguments[i].replace(/^\/+|\/+$/g, '');
       if (part) {
-        parts.push(part)
+        parts.push(part);
       }
     }
   }
-  return parts.join('/')
+  return parts.join('/');
 }
 
 /**
@@ -24,30 +24,30 @@ function joinPath() {
  */
 function resolveRelativePath(basePath, relativePath) {
   if (!basePath) {
-    throw new Error('Base path is required for relative resolution')
+    throw new Error('Base path is required for relative resolution');
   }
   if (!relativePath) {
-    throw new Error('Relative path cannot be empty')
+    throw new Error('Relative path cannot be empty');
   }
 
-  var baseParts = basePath.split('/').filter(Boolean)
-  var relativeParts = relativePath.split('/').filter(Boolean)
+  var baseParts = basePath.split('/').filter(Boolean);
+  var relativeParts = relativePath.split('/').filter(Boolean);
 
   for (var i = 0; i < relativeParts.length; i++) {
-    var part = relativeParts[i]
+    var part = relativeParts[i];
 
     if (part === '.') {
-      continue
+      continue;
     } else if (part === '..') {
       if (baseParts.length > 0) {
-        baseParts.pop()
+        baseParts.pop();
       }
     } else {
-      baseParts.push(part)
+      baseParts.push(part);
     }
   }
 
-  return baseParts.join('/')
+  return baseParts.join('/');
 }
 
 /**
@@ -57,18 +57,18 @@ function resolveRelativePath(basePath, relativePath) {
  */
 function resolveAlias(requestPath) {
   if (!requestPath) {
-    throw new Error('Empty alias path')
+    throw new Error('Empty alias path');
   }
 
   if (!window.ALIASES) {
-    throw new Error('Aliases not configured. Use $import.addAlias() first')
+    throw new Error('Aliases not configured. Use $import.addAlias() first');
   }
 
-  var parts = requestPath.split('/')
-  var alias = parts[0]
+  var parts = requestPath.split('/');
+  var alias = parts[0];
 
   if (!alias) {
-    throw new Error('Invalid alias path: ' + requestPath)
+    throw new Error('Invalid alias path: ' + requestPath);
   }
 
   if (!window.ALIASES[alias]) {
@@ -76,14 +76,14 @@ function resolveAlias(requestPath) {
       'Alias not found: "' +
       alias +
       '". Available: ' +
-      Object.keys(window.ALIASES).join(', ')
-    throw new Error(message)
+      Object.keys(window.ALIASES).join(', ');
+    throw new Error(message);
   }
 
-  var modulePath = parts.slice(1).join('/')
-  var aliasBase = window.ALIASES[alias]
+  var modulePath = parts.slice(1).join('/');
+  var aliasBase = window.ALIASES[alias];
 
-  return joinPath(aliasBase, modulePath)
+  return joinPath(aliasBase, modulePath);
 }
 
 /**
@@ -92,7 +92,7 @@ function resolveAlias(requestPath) {
  * @returns {boolean} true if file has known extension
  */
 function hasKnownExtension(path) {
-  var filename = path.split('/').pop()
+  var filename = path.split('/').pop();
   var knownExtensions = [
     '.js',
     '.html',
@@ -105,12 +105,12 @@ function hasKnownExtension(path) {
     '.jpg',
     '.jpeg',
     '.gif',
-  ]
+  ];
   return knownExtensions.some(
     function (ext) {
-      return filename.toLowerCase().endsWith(ext)
+      return filename.toLowerCase().endsWith(ext);
     }.bind(this)
-  )
+  );
 }
 
 /**
@@ -121,31 +121,31 @@ function hasKnownExtension(path) {
  */
 function resolvePath(requestPath, parentDir) {
   if (!requestPath) {
-    throw new Error('Import path cannot be empty')
+    throw new Error('Import path cannot be empty');
   }
 
-  var fullPath
+  var fullPath;
 
   if (requestPath.startsWith('./') || requestPath.startsWith('../')) {
     if (!parentDir) {
-      throw new Error('Relative import requires parent directory context')
+      throw new Error('Relative import requires parent directory context');
     }
-    fullPath = resolveRelativePath(parentDir, requestPath)
+    fullPath = resolveRelativePath(parentDir, requestPath);
   } else if (requestPath.startsWith('/')) {
-    fullPath = requestPath.substring(1)
+    fullPath = requestPath.substring(1);
   } else {
-    fullPath = resolveAlias(requestPath)
+    fullPath = resolveAlias(requestPath);
   }
 
   if (hasKnownExtension(fullPath)) {
-    return fullPath
+    return fullPath;
   }
 
   if (fullPath.includes('.')) {
-    return fullPath + '.js'
+    return fullPath + '.js';
   }
 
-  return fullPath + '.js'
+  return fullPath + '.js';
 }
 
-window.resolvePath = resolvePath
+window.resolvePath = resolvePath;

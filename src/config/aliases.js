@@ -5,4 +5,4 @@ window.ALIASES = {
   '@lib': 'src/lib',
   '@config': 'src/config',
   '@core': 'src/lib/core',
-}
+};

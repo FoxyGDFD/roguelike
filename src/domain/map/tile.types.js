@@ -3,5 +3,5 @@ var TILE_TYPES = {
   wall: 1,
   heal: 2,
   sword: 3,
-}
-module.exports = TILE_TYPES
+};
+module.exports = TILE_TYPES;

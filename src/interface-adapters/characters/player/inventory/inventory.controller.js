@@ -1,17 +1,17 @@
 function InventoryController(inventoryModel) {
-  this.inventoryModel = inventoryModel
-  var self = this
+  this.inventoryModel = inventoryModel;
+  var self = this;
   document.addEventListener('wheel', function (event) {
-    if (event.deltaY > 0) self.inventoryModel.nextNode()
-    else self.inventoryModel.prevNode()
-  })
+    if (event.deltaY > 0) self.inventoryModel.nextNode();
+    else self.inventoryModel.prevNode();
+  });
 
   document.addEventListener('keydown', function (event) {
-    var key = event.key
+    var key = event.key;
     if (/^[1-9]$/.test(key)) {
-      self.inventoryModel.setCurrentIndex(key - 1)
+      self.inventoryModel.setCurrentIndex(key - 1);
     }
-  })
+  });
 }
 
-module.exports = InventoryController
+module.exports = InventoryController;

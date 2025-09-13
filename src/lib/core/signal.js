@@ -1,59 +1,59 @@
-var currentEffect = null
+var currentEffect = null;
 
 function signal(initialValue) {
-  var value = initialValue
-  var _subscribers = []
+  var value = initialValue;
+  var _subscribers = [];
 
-  var obj = {}
+  var obj = {};
 
   Object.defineProperty(obj, 'value', {
     get: function () {
       if (currentEffect && _subscribers.indexOf(currentEffect) === -1) {
-        _subscribers.push(currentEffect)
+        _subscribers.push(currentEffect);
       }
-      return value
+      return value;
     },
     set: function (newValue) {
-      value = newValue
+      value = newValue;
       for (var i = 0; i < _subscribers.length; i++) {
-        _subscribers[i]()
+        _subscribers[i]();
       }
     },
-  })
+  });
 
   obj.subscribe = function (fn) {
     if (typeof fn === 'function' && _subscribers.indexOf(fn) === -1) {
-      _subscribers.push(fn)
+      _subscribers.push(fn);
     }
     return function dispose() {
-      var idx = _subscribers.indexOf(fn)
-      if (idx !== -1) _subscribers.splice(idx, 1)
-    }
-  }
+      var idx = _subscribers.indexOf(fn);
+      if (idx !== -1) _subscribers.splice(idx, 1);
+    };
+  };
 
-  return obj
+  return obj;
 }
 
 function effect(fn) {
   function wrapped() {
-    currentEffect = wrapped
-    fn()
-    currentEffect = null
+    currentEffect = wrapped;
+    fn();
+    currentEffect = null;
   }
-  wrapped()
+  wrapped();
   return function dispose() {
     // удаляем подписку вручную
-  }
+  };
 }
 
 function computed(fn) {
-  var c = signal(fn())
+  var c = signal(fn());
 
   effect(function () {
-    c.value = fn()
-  })
+    c.value = fn();
+  });
 
-  return c
+  return c;
 }
 
-module.exports = { signal: signal, computed: computed, effect: effect }
+module.exports = { signal: signal, computed: computed, effect: effect };

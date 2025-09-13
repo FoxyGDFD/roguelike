@@ -1,22 +1,22 @@
 <div class="player-info">
-  <div>
-    <span>Position:</span>
-    <span>{{ x }}, {{ y }}</span>
-  </div>
-
-  <div>
-    <span>Health:</span>
-    <span>{{ health }}</span>
+  <div class="stat">
+    <span class="label">Position:</span>
+    <span class="value">{{ x }}, {{ y }}</span>
   </div>
 
   <div class="stat">
-    <span>Gold:</span>
-    <span>{{ gold }}</span>
+    <span class="label">Health:</span>
+    <span class="value">{{ health }}</span>
   </div>
 
-  <div class="actions">
-    <button>-10 Health</button>
-    <button>+5 Health</button>
-    <button>+50 Gold</button>
+  <div class="stat">
+    <span class="label">Gold:</span>
+    <span class="value">{{ gold }}</span>
   </div>
+
+  <button on-click="decreaseHealth" class="btn btn-danger">-10 Health</button>
+
+  <button on-click="increaseHealth" class="btn btn-success">+5 Health</button>
+
+  <button on-click="addGold" class="btn btn-gold">+50 Gold</button>
 </div>

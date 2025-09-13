@@ -1,4 +1,4 @@
-var Class = $import('@core/class')
+var Class = $import('@core/class');
 
 var ConfigService = Class({
   constructor: function () {
@@ -7,16 +7,16 @@ var ConfigService = Class({
       mapWidth: 40,
       mapHeight: 28,
       tileSize: 35,
-    }
+    };
   },
   properties: {
     config: {
       get: function () {
-        return this._config
+        return this._config;
       },
       configurable: false,
     },
   },
-})
+});
 
-module.exports = ConfigService
+module.exports = ConfigService;

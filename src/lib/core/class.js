@@ -52,27 +52,27 @@ var Class = function () {
    */
   function create(definition) {
     var constructor = /** @type {any} */ (
-      definition.constructor || function () { }
-    )
-    var staticMethods = definition.static || {}
-    var instanceMethods = definition.methods || {}
-    var properties = definition.properties || {}
-    var staticProperties = definition.staticProperties || {}
+      definition.constructor || function () {}
+    );
+    var staticMethods = definition.static || {};
+    var instanceMethods = definition.methods || {};
+    var properties = definition.properties || {};
+    var staticProperties = definition.staticProperties || {};
 
     constructor.extends = function (childDefinition) {
-      return _extends.call(this, childDefinition)
-    }
+      return _extends.call(this, childDefinition);
+    };
 
     constructor.inject = function (methods) {
-      return _inject.call(this, methods)
-    }
+      return _inject.call(this, methods);
+    };
 
-    _applyStaticProperties(staticProperties, constructor)
-    _applyProperties(properties, constructor)
-    _applyStaticMethods(staticMethods, constructor)
-    _applyInstanceMethods(instanceMethods, constructor)
+    _applyStaticProperties(staticProperties, constructor);
+    _applyProperties(properties, constructor);
+    _applyStaticMethods(staticMethods, constructor);
+    _applyInstanceMethods(instanceMethods, constructor);
 
-    return /** @type {ClassConstructor} */ constructor
+    return /** @type {ClassConstructor} */ constructor;
   }
 
   /**
@@ -81,59 +81,59 @@ var Class = function () {
    * @returns {ClassConstructor}
    */
   function _extends(childDefinition) {
-    var parentConstructor = /** @type {ClassConstructor} */ this
-    var childStaticMethods = childDefinition.static || {}
-    var childInstanceMethods = childDefinition.methods || {}
-    var childProperties = childDefinition.properties || {}
-    var childStaticProperties = childDefinition.staticProperties || {}
+    var parentConstructor = /** @type {ClassConstructor} */ this;
+    var childStaticMethods = childDefinition.static || {};
+    var childInstanceMethods = childDefinition.methods || {};
+    var childProperties = childDefinition.properties || {};
+    var childStaticProperties = childDefinition.staticProperties || {};
     var childConstructor =
       childDefinition.constructor ||
       function () {
         // @ts-ignore
-        parentConstructor.apply(this, arguments)
-      }
+        parentConstructor.apply(this, arguments);
+      };
 
-    _inherit(childConstructor, parentConstructor)
+    _inherit(childConstructor, parentConstructor);
 
-    _inheritStatic(childConstructor, parentConstructor)
+    _inheritStatic(childConstructor, parentConstructor);
 
-    _applyStaticProperties(childStaticProperties, childConstructor)
-    _applyProperties(childProperties, childConstructor)
-    _applyStaticMethods(childStaticMethods, childConstructor)
-    _applyInstanceMethods(childInstanceMethods, childConstructor)
+    _applyStaticProperties(childStaticProperties, childConstructor);
+    _applyProperties(childProperties, childConstructor);
+    _applyStaticMethods(childStaticMethods, childConstructor);
+    _applyInstanceMethods(childInstanceMethods, childConstructor);
 
     // @ts-ignore
     childConstructor.extends = function (grandChildDefinition) {
-      return _extends.call(this, grandChildDefinition)
-    }
+      return _extends.call(this, grandChildDefinition);
+    };
 
     // @ts-ignore
     childConstructor.inject = function (methods) {
-      return _inject.call(this, methods)
-    }
+      return _inject.call(this, methods);
+    };
 
     // @ts-ignore
-    return childConstructor
+    return childConstructor;
   }
 
   /** @param {Object.<string, Function>} methods */
   function _inject(methods) {
-    _applyInstanceMethods(methods, this)
-    return this
+    _applyInstanceMethods(methods, this);
+    return this;
   }
   /**
    * @private
    */
   function _applyProperties(properties, constructor) {
     Object.keys(properties).forEach(function (propName) {
-      var propDefinition = properties[propName]
+      var propDefinition = properties[propName];
       Object.defineProperty(constructor.prototype, propName, {
         get: propDefinition.get,
         set: propDefinition.set,
         enumerable: propDefinition.enumerable !== false,
         configurable: propDefinition.configurable !== false,
-      })
-    })
+      });
+    });
   }
 
   /**
@@ -141,14 +141,14 @@ var Class = function () {
    */
   function _applyStaticProperties(properties, constructor) {
     Object.keys(properties).forEach(function (propName) {
-      var propDefinition = properties[propName]
+      var propDefinition = properties[propName];
       Object.defineProperty(constructor, propName, {
         get: propDefinition.get,
         set: propDefinition.set,
         enumerable: propDefinition.enumerable !== false,
         configurable: propDefinition.configurable !== false,
-      })
-    })
+      });
+    });
   }
 
   /**
@@ -156,8 +156,8 @@ var Class = function () {
    */
   function _applyInstanceMethods(methods, constructor) {
     Object.keys(methods).forEach(function (methodName) {
-      constructor.prototype[methodName] = methods[methodName]
-    })
+      constructor.prototype[methodName] = methods[methodName];
+    });
   }
 
   /**
@@ -165,16 +165,16 @@ var Class = function () {
    */
   function _applyStaticMethods(methods, constructor) {
     Object.keys(methods).forEach(function (methodName) {
-      constructor[methodName] = methods[methodName]
-    })
+      constructor[methodName] = methods[methodName];
+    });
   }
 
   /**
    * @private
    */
   function _inherit(childClass, parentClass) {
-    childClass.prototype = Object.create(parentClass.prototype)
-    childClass.prototype.constructor = childClass
+    childClass.prototype = Object.create(parentClass.prototype);
+    childClass.prototype.constructor = childClass;
   }
 
   /**
@@ -187,13 +187,13 @@ var Class = function () {
       'prototype',
       'extends',
       'inject',
-    ]
+    ];
     Object.getOwnPropertyNames(parentClass).forEach(function (propName) {
       if (!notInheredProperties.includes(propName)) {
-        var descriptor = Object.getOwnPropertyDescriptor(parentClass, propName)
-        Object.defineProperty(childClass, propName, descriptor)
+        var descriptor = Object.getOwnPropertyDescriptor(parentClass, propName);
+        Object.defineProperty(childClass, propName, descriptor);
       }
-    })
+    });
   }
 
   /**
@@ -203,8 +203,8 @@ var Class = function () {
    * @returns {ClassConstructor}
    */
   create.inject = function (constructor, methods) {
-    return _inject.call(constructor, methods)
-  }
+    return _inject.call(constructor, methods);
+  };
 
   /**
    * Примешивает свойства и методы из source в target (кроме constructor и prototype)
@@ -216,13 +216,13 @@ var Class = function () {
   create.mixin = function (target, source) {
     Object.keys(source).forEach(function (key) {
       if (key !== 'constructor' && key !== 'prototype') {
-        /** @type {any} */ target[key] = /** @type {any} */ (source)[key]
+        /** @type {any} */ target[key] = /** @type {any} */ (source)[key];
       }
-    })
-    return /** @type {T & S} */ (target)
-  }
+    });
+    return /** @type {T & S} */ (target);
+  };
 
-  return /** @type {ClassFactory} */ create
-}
+  return /** @type {ClassFactory} */ create;
+};
 
-module.exports = Class()
+module.exports = Class();
