@@ -1,6 +1,6 @@
 /** @typedef {import('@core/class').ClassConstructor} ClassConstructor */
 var Class = $import('@core/class');
-var effect = $import('@core/signal').effect;
+// var effect = $import('@core/signal').effect;
 
 var templateCache = {};
 
@@ -14,15 +14,18 @@ var Component = Class({
     this._templateUrl = templateUrl;
     this.element = null;
     this.bindings = [];
-    this._context = this._createRootContext();
+    this.disposeEventHandlers = [];
   },
 
   methods: {
-    onInit: function () { },
-    onDestroy: function () { },
+    onInit: function () {},
+    onDestroy: function () {},
 
     destroy: function () {
       this.onDestroy();
+      this.eventHandlers.forEach(function (dispose) {
+        dispose();
+      });
     },
 
     _loadTemplate: function (callback) {
@@ -35,26 +38,40 @@ var Component = Class({
       callback(templateCache[this._templateUrl]);
     },
 
-    _createRootContext: function () {
-      return {
-        data: this,
-        locals: {},
-        parent: null,
-        root: null,
-      };
-    },
+    _createEventBinding: function (node, eventAttributeName) {
+      var eventName = eventAttributeName.slice(3);
+      var handler = this[node.getAttribute(eventAttributeName)];
 
-    _processElement: function (node, context) {
-      var attributes = node.getAttributeNames();
+      node.removeAttribute(eventAttributeName);
 
-      attributes.forEach(function (attr) {
-        if (eventPropertyRegexp.test(attr)) {
-          console.log('Element event:', attr);
-        }
-        if (reactiveAttributesRegexp.test(attr)) {
-          console.log('Element attribute:', attr);
+      var self = this;
+      node.addEventListener(eventName, function (e) {
+        if (typeof handler === 'function') {
+          handler.call(self, e);
         }
       });
+
+      this.disposeEventHandlers.push(function () {
+        return node.EventListener(eventName);
+      });
+    },
+
+    _processElement: function (node) {
+      var attributes = node.getAttributeNames();
+
+      attributes.forEach(
+        function (attr) {
+          if (eventPropertyRegexp.test(attr)) {
+            this._createEventBinding(node, attr);
+            // eslint-disable-next-line no-console
+            console.log('Element event:', attr);
+          }
+          if (reactiveAttributesRegexp.test(attr)) {
+            // eslint-disable-next-line no-console
+            console.log('Element attribute:', attr);
+          }
+        }.bind(this)
+      );
       var childNodes = node.childNodes;
       for (var i = 0; i < childNodes.length; i++) {
         var childNode = childNodes[i];
@@ -62,38 +79,37 @@ var Component = Class({
           childNode.nodeType === Node.TEXT_NODE &&
           childNode.textContent.trim() !== ''
         ) {
-          this._processText(childNode, context);
+          this._processText(childNode);
         }
       }
     },
 
-    _processText: function (textNode, context) {
+    _processText: function (textNode) {
       var text = textNode.textContent;
       if (reactivePropertyRegexp.test(text)) {
+        // eslint-disable-next-line no-console
         console.log('Element property:', text);
       }
     },
 
-    _processNode: function (node, context) {
+    _processNode: function (node) {
       switch (node.nodeType) {
         case Node.ELEMENT_NODE:
-          return this._processElement(node, context);
+          return this._processElement(node);
         case Node.TEXT_NODE:
-          return this._processText(node, context);
+          return this._processText(node);
         default:
-          return context;
+          return;
       }
     },
 
     _createNodeTree: function (element) {
-      var stack = [{ node: element, context: this._context }];
+      var stack = [element];
 
       while (stack.length > 0) {
-        var templateNode = stack.pop();
-        var context = templateNode.context;
-        var node = templateNode.node;
+        var node = stack.pop();
 
-        this._processNode(node, context);
+        this._processNode(node);
 
         // console.log(node.children);
         // If node was removed
@@ -104,10 +120,7 @@ var Component = Class({
         // add children to stack
         if (node.children && node.children.length > 0) {
           for (var i = node.children.length - 1; i >= 0; i--) {
-            stack.push({
-              node: node.children[i],
-              context: context,
-            });
+            stack.push(node.children[i]);
           }
         }
       }
