@@ -5,6 +5,21 @@ function signal(initialValue) {
   var _subscribers = [];
 
   var obj = {};
+  var isNotifying = false;
+
+  function notify() {
+    if (isNotifying) return;
+    isNotifying = true;
+
+    try {
+      var subscribers = _subscribers.slice();
+      for (var i = 0; i < subscribers.length; i++) {
+        subscribers[i]();
+      }
+    } finally {
+      isNotifying = false;
+    }
+  }
 
   Object.defineProperty(obj, 'value', {
     get: function () {
@@ -14,10 +29,10 @@ function signal(initialValue) {
       return value;
     },
     set: function (newValue) {
+      if (value === newValue) return;
       value = newValue;
-      for (var i = 0; i < _subscribers.length; i++) {
-        _subscribers[i]();
-      }
+
+      notify();
     },
   });
 
@@ -35,14 +50,28 @@ function signal(initialValue) {
 }
 
 function effect(fn) {
-  function wrapped() {
-    currentEffect = wrapped;
-    fn();
-    currentEffect = null;
+  var isDisposed = false;
+  var isRunning = false;
+
+  function execute() {
+    if (isDisposed || isRunning) return;
+
+    isRunning = true;
+    var previousEffect = currentEffect;
+    currentEffect = execute;
+
+    try {
+      fn();
+    } finally {
+      currentEffect = previousEffect;
+      isRunning = false;
+    }
   }
-  wrapped();
-  return function dispose() {
-    // удаляем подписку вручную
+
+  execute();
+
+  return function () {
+    isDisposed = true;
   };
 }
 

@@ -1,6 +1,6 @@
 /** @typedef {import('@core/class').ClassConstructor} ClassConstructor */
 var Class = $import('@core/class');
-var effect = $import('@core/signal').effect;
+// var signal = $import('@core/signal').signal;
 
 var templateCache = {};
 
@@ -24,6 +24,9 @@ var Component = Class({
     destroy: function () {
       this.onDestroy();
       this.eventHandlers.forEach(function (dispose) {
+        dispose();
+      });
+      this.bindings.forEach(function (dispose) {
         dispose();
       });
     },
@@ -52,8 +55,48 @@ var Component = Class({
       });
 
       this.disposeEventHandlers.push(function () {
-        return node.EventListener(eventName);
+        return node.removeEventListener(eventName);
       });
+    },
+
+    _createAttributeBinding: function (node, attributeName) {
+      var domAttribute = attributeName.slice(1, -1);
+      var propertyName = node.getAttribute(attributeName);
+      var property = this[propertyName];
+      if (!property) return;
+
+      node.removeAttribute(attributeName);
+
+      var self = this;
+      function getValue() {
+        if (
+          property &&
+          typeof property === 'object' &&
+          typeof property.subscribe === 'function'
+        ) {
+          return property.value;
+        } else if (typeof property === 'function') {
+          return property.call(self);
+        } else {
+          return property;
+        }
+      }
+
+      function updateAttribute() {
+        var value = getValue();
+        if (value !== undefined && value !== null) {
+          node.setAttribute(domAttribute, value);
+        } else {
+          node.removeAttribute(domAttribute);
+        }
+      }
+
+      updateAttribute();
+
+      if (property && typeof property.subscribe === 'function') {
+        var dispose = property.subscribe(updateAttribute);
+        this.bindings.push(dispose);
+      }
     },
 
     _processElement: function (node) {
@@ -66,6 +109,7 @@ var Component = Class({
             console.log('Element event:', attr);
           }
           if (reactiveAttributesRegexp.test(attr)) {
+            this._createAttributeBinding(node, attr);
             console.log('Element attribute:', attr);
           }
         }.bind(this)
@@ -85,7 +129,7 @@ var Component = Class({
     _processText: function (textNode) {
       var text = textNode.textContent;
       if (reactivePropertyRegexp.test(text)) {
-        console.log('Element property:', text);
+        // console.log('Element property:', text);
       }
     },
 
