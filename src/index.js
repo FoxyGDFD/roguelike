@@ -43,10 +43,10 @@ function bootstrap() {
   new PlayerController(playerVM);
   new PlayerInventoryController(inventoryModel);
 
-  var TestCharacterButtonsView = $import('@ui/interface/test-buttons.js');
+  var PlayerInfoView = $import('@ui/interface/player-info.component');
 
   playerSelector.appendChild(
-    new TestCharacterButtonsView(playerSelector, playerVM).render()
+    new PlayerInfoView(playerSelector, playerVM).render()
   );
 }
 
